@@ -20,10 +20,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copia el código del proyecto al contenedor
 COPY . /var/www/html
 
-# Establece permisos
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+# Copia el archivo de configuración .env
+COPY .env /var/www/html/.env
+
+# Establece permisos adecuados para los directorios de Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Configura el directorio de trabajo
 WORKDIR /var/www/html
@@ -40,7 +42,7 @@ RUN php artisan migrate --seed
 # Copia el archivo de configuración virtualhost
 COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 
-# Expone el puerto 8080 (puedes usar otro puerto si lo necesitas)
+# Expone el puerto 8080
 EXPOSE 8080
 
 # Comando de inicio para levantar el servidor
