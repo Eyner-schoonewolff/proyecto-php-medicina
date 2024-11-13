@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     curl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
+    && apt-get install -y libzip-dev
 
 # Habilita mod_rewrite para Laravel
 RUN a2enmod rewrite
@@ -20,6 +21,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copia el código del proyecto al contenedor
 COPY . /var/www/html
 
+# Copia el archivo de configuración .env
+COPY .env /var/www/html/.env
 
 # Establece permisos adecuados para los directorios de Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
@@ -43,5 +46,5 @@ COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 # Expone el puerto 8080
 EXPOSE 8080
 
-# Comando de inicio para levantar el servidor
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# Comando de inicio para levantar el servidor Apache
+CMD ["apache2-foreground"]
