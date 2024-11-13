@@ -36,7 +36,7 @@
                         <div class="row">
                             <div class="col-6 collapse-brand">
                                 <a href="#">
-                                    <img src="{{ asset('img/brand/blue.png') }}">
+                                    <img src="{{ asset('img/brand/blue.jpg') }}">
                                 </a>
                             </div>
                             <div class="col-6 collapse-close">
