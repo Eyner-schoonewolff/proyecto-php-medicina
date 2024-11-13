@@ -20,8 +20,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copia el código del proyecto al contenedor
 COPY . /var/www/html
 
-# Copia el archivo de configuración .env
-COPY .env /var/www/html/.env
 
 # Establece permisos adecuados para los directorios de Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
