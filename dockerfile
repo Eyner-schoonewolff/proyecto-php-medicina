@@ -1,7 +1,7 @@
-# Usa una imagen oficial de PHP con Apache y Composer
+# Usa la imagen de PHP con Apache
 FROM php:8.2-apache
 
-# Instala dependencias del sistema
+# Instala dependencias del sistema y PHP
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     curl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
-    && apt-get install -y libzip-dev
+    libzip-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd fileinfo
 
 # Habilita mod_rewrite para Laravel
 RUN a2enmod rewrite
@@ -21,9 +21,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copia el código del proyecto al contenedor
 COPY . /var/www/html
 
-# Copia el archivo de configuración .env
-COPY .env /var/www/html/.env
-
 # Establece permisos adecuados para los directorios de Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
@@ -31,20 +28,11 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Configura el directorio de trabajo
 WORKDIR /var/www/html
 
-# Instala las dependencias de Laravel
-RUN composer install --optimize-autoloader --no-dev
-
-# Genera la clave de la aplicación
-RUN php artisan key:generate
-
-# Ejecuta las migraciones y las semillas de la base de datos
-RUN php artisan migrate --seed
-
-# Copia el archivo de configuración virtualhost
+# Copia el archivo de configuración de Apache
 COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 
-# Expone el puerto 8080
-EXPOSE 8080
+# Expone el puerto 80 para HTTP
+EXPOSE 80
 
-# Comando de inicio para levantar el servidor Apache
+# Ejecuta Apache en primer plano
 CMD ["apache2-foreground"]
