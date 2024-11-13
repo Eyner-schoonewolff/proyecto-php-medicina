@@ -31,11 +31,17 @@ WORKDIR /var/www/html
 # Instala las dependencias de Laravel
 RUN composer install --optimize-autoloader --no-dev
 
+# Genera la clave de la aplicación
+RUN php artisan key:generate
+
+# Ejecuta las migraciones y las semillas de la base de datos
+RUN php artisan migrate --seed
+
 # Copia el archivo de configuración virtualhost
 COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 
-# Expone el puerto 80
-EXPOSE 80
+# Expone el puerto 8080 (puedes usar otro puerto si lo necesitas)
+EXPOSE 8080
 
-# Comando de inicio
-CMD ["apache2-foreground"]
+# Comando de inicio para levantar el servidor
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
